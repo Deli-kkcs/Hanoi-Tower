@@ -61,9 +61,9 @@ public class GameManager : MonoBehaviour
         
     }
 
-    void GenerateColumn()
+    public void GenerateColumn()
     {
-       
+        if (countPlate > maxCountPlate) return;
 
         heightPlate = heightColumn / (countPlate + 1.5f);
         maxWidthPlate = intervalColumn * 0.8f;
