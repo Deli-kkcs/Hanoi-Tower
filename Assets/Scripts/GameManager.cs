@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -18,6 +19,7 @@ public class GameManager : MonoBehaviour
 
     [Header("盘子参数")]
     public int countPlate = 3;
+    public Text text_countPlate;
     [HideInInspector]
     public float heightPlate;
     [HideInInspector]
@@ -32,7 +34,8 @@ public class GameManager : MonoBehaviour
     [Header("每次移动的时间间隔")]
     public float intervalMove = 0.3f;
     public int maxCountPlate = 20;
-    private bool hasExecuted = false;
+    public bool hasExecuted = false;
+    public GameObject panel_Complete;
     public class MoveInfo
     {
         public int source;
@@ -52,19 +55,24 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.G))
-            GenerateColumn();
+        //if (Input.GetKeyDown(KeyCode.G))
+        //    GenerateColumn();
 
-        if (Input.GetKeyDown(KeyCode.R) && !hasExecuted)
-            CallExecute();
+        //if (Input.GetKeyDown(KeyCode.R))
+        //    CallExecute();
         
         
     }
 
     public void GenerateColumn()
     {
-        if (countPlate > maxCountPlate) return;
+        if (countPlate >= maxCountPlate)
+            return;
 
+        StopCoroutine(nameof(AutoMove));
+        bool isNum = int.TryParse(text_countPlate.text, out countPlate);
+        if (!isNum)
+            return;
         heightPlate = heightColumn / (countPlate + 1.5f);
         maxWidthPlate = intervalColumn * 0.8f;
         minWidthPlate = intervalColumn * 0.2f;
@@ -84,6 +92,7 @@ public class GameManager : MonoBehaviour
         list_columns[0].GetComponent<Column>().GeneratePlate();
 
         hasExecuted = false;
+        panel_Complete.SetActive(false);
     }
     void move(int x, int y)
     {
@@ -91,9 +100,11 @@ public class GameManager : MonoBehaviour
         list_moveInfos.Add(new(x, y));
         //printf("%c->%c\n", x, y);
     }
-    void CallExecute()
+    public void CallExecute()
     {
         if (countPlate >= maxCountPlate)
+            return;
+        if (hasExecuted)
             return;
         hasExecuted = true;
 
@@ -124,21 +135,54 @@ public class GameManager : MonoBehaviour
             Invoke(nameof(WaitForExecute),0.02f);
             return;
         }
-        Debug.Log("End WaitForExecute()");
-        AutoMove();
+        //Debug.Log("End WaitForExecute()");
+        StartCoroutine(nameof(AutoMove));
     }
-    void AutoMove()
+    IEnumerator AutoMove()
     {
-        if(list_moveInfos.Count > 0)
+        int c = 0;
+        while(c < 1e5)
         {
-            MoveInfo t_info = list_moveInfos[0];
-            //Debug.Log("move " + t_info.source + " -> " + t_info.destination);
-            list_columns[t_info.destination].GetComponent<Column>().PushPlate(list_columns[t_info.source].GetComponent<Column>().PopPlate());
-            list_moveInfos.Remove(t_info);
-            Invoke(nameof(AutoMove), intervalMove);
-            return;
+            c++;
+            if (list_moveInfos.Count > 0)
+            {
+                MoveInfo t_info = list_moveInfos[0];
+                //Debug.Log("move " + t_info.source + " -> " + t_info.destination);
+                list_columns[t_info.destination].GetComponent<Column>().PushPlate(list_columns[t_info.source].GetComponent<Column>().PopPlate());
+                list_moveInfos.Remove(t_info);
+                yield return new WaitForSeconds(intervalMove);
+            }
+            else
+            {
+                panel_Complete.SetActive(true);
+                break;
+            }
+                
         }
     }
+    public bool CheckComplete()
+    {
+        if (list_columns[2].transform.childCount == countPlate)
+        {
+            hasExecuted = true;
+            panel_Complete.SetActive(true);
+            return true;
+        }
+        return false;
+    }
+
+    //void AutoMove()
+    //{
+    //    if(list_moveInfos.Count > 0)
+    //    {
+    //        MoveInfo t_info = list_moveInfos[0];
+    //        //Debug.Log("move " + t_info.source + " -> " + t_info.destination);
+    //        list_columns[t_info.destination].GetComponent<Column>().PushPlate(list_columns[t_info.source].GetComponent<Column>().PopPlate());
+    //        list_moveInfos.Remove(t_info);
+    //        Invoke(nameof(AutoMove), intervalMove);
+    //        return;
+    //    }
+    //}
     public void ClearChild(GameObject p)
     {
         for (int i = 0; i < p.transform.childCount; i++)

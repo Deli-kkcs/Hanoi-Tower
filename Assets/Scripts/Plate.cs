@@ -21,6 +21,8 @@ public class Plate : MonoBehaviour,IBeginDragHandler,IDragHandler,IEndDragHandle
     private GameObject plateInst;
     void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
     {
+        if (GameManager.instance.hasExecuted)
+            return;
         if (!(transform.GetSiblingIndex() == transform.parent.childCount - 1)) return;
         
         plateInst = Instantiate(this.gameObject);
@@ -36,6 +38,8 @@ public class Plate : MonoBehaviour,IBeginDragHandler,IDragHandler,IEndDragHandle
     }
     void IDragHandler.OnDrag(PointerEventData eventData)
     {
+        if (GameManager.instance.hasExecuted)
+            return;
         if (!(transform.GetSiblingIndex() == transform.parent.childCount-1)) return;
         //Debug.Log("Drad:" + plateInst.transform.position);
         plateInst.transform.position = TransScreenPosToWorld(eventData.position);
@@ -43,6 +47,8 @@ public class Plate : MonoBehaviour,IBeginDragHandler,IDragHandler,IEndDragHandle
 
     void IEndDragHandler.OnEndDrag(PointerEventData eventData)
     {
+        if (GameManager.instance.hasExecuted)
+            return;
         if (!(transform.GetSiblingIndex() == transform.parent.childCount - 1)) return;
         Collider2D[] cols = Physics2D.OverlapPointAll(TransScreenPosToWorld(eventData.position));
         foreach(Collider2D col in cols)
@@ -64,6 +70,8 @@ public class Plate : MonoBehaviour,IBeginDragHandler,IDragHandler,IEndDragHandle
         Color color = GetComponent<Image>().color;
         color.a = 1f;
         GetComponent<Image>().color = new Color(color.r, color.g, color.b, color.a);
+
+        Debug.Log(GameManager.instance.CheckComplete());
     }
 
     static Vector3 TransScreenPosToWorld(Vector3 pos)
