@@ -47,6 +47,7 @@ public class Plate : MonoBehaviour,IBeginDragHandler,IDragHandler,IEndDragHandle
 
     void IEndDragHandler.OnEndDrag(PointerEventData eventData)
     {
+        bool moved = false;
         if (GameManager.instance.hasExecuted)
             return;
         if (!(transform.GetSiblingIndex() == transform.parent.childCount - 1)) return;
@@ -56,8 +57,10 @@ public class Plate : MonoBehaviour,IBeginDragHandler,IDragHandler,IEndDragHandle
             if(col.tag == "Column")
             {
                 Transform colTransform = col.gameObject.transform;
+                if (transform.parent != colTransform)
+                    moved = true;
                 //如果顶部盘子数字小于该盘子的数字
-                if(colTransform.childCount == 0 || colTransform.GetChild(colTransform.childCount-1).GetComponent<Plate>().size > size)
+                if (colTransform.childCount == 0 || colTransform.GetChild(colTransform.childCount-1).GetComponent<Plate>().size > size && moved)
                 {
                     col.gameObject.GetComponent<Column>().PushPlate(size);
                     Destroy(gameObject);
@@ -71,7 +74,11 @@ public class Plate : MonoBehaviour,IBeginDragHandler,IDragHandler,IEndDragHandle
         color.a = 1f;
         GetComponent<Image>().color = new Color(color.r, color.g, color.b, color.a);
 
-        Debug.Log(GameManager.instance.CheckComplete());
+        if (!moved)
+            return;
+        GameManager.instance.CheckComplete();
+        GameManager.instance.countMove++;
+        GameManager.instance.text_countMove.text = GameManager.instance.countMove.ToString();
     }
 
     static Vector3 TransScreenPosToWorld(Vector3 pos)

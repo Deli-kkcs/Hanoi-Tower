@@ -36,6 +36,8 @@ public class GameManager : MonoBehaviour
     public int maxCountPlate = 20;
     public bool hasExecuted = false;
     public GameObject panel_Complete;
+    public Text text_countMove;
+    public int countMove = 0;
     public class MoveInfo
     {
         public int source;
@@ -77,6 +79,9 @@ public class GameManager : MonoBehaviour
         maxWidthPlate = intervalColumn * 0.8f;
         minWidthPlate = intervalColumn * 0.2f;
 
+        countMove = 0;
+        text_countMove.text = countMove.ToString();
+
         list_moveInfos.Clear();
         list_columns.Clear();
         ClearChild(panel_column);
@@ -98,7 +103,6 @@ public class GameManager : MonoBehaviour
     {
         timerWaitForExecute = timeWaitForExecute;
         list_moveInfos.Add(new(x, y));
-        //printf("%c->%c\n", x, y);
     }
     public void CallExecute()
     {
@@ -146,6 +150,9 @@ public class GameManager : MonoBehaviour
             c++;
             if (list_moveInfos.Count > 0)
             {
+                countMove++;
+                text_countMove.text = countMove.ToString();
+
                 MoveInfo t_info = list_moveInfos[0];
                 //Debug.Log("move " + t_info.source + " -> " + t_info.destination);
                 list_columns[t_info.destination].GetComponent<Column>().PushPlate(list_columns[t_info.source].GetComponent<Column>().PopPlate());
