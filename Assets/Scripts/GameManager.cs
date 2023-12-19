@@ -35,8 +35,10 @@ public class GameManager : MonoBehaviour
     public float intervalMove = 0.3f;
     public int maxCountPlate = 20;
     public bool hasExecuted = false;
+    public Button button_Generate;
     public GameObject panel_Complete;
     public Text text_countMove;
+    public GameObject text_Optimum;
     public int countMove = 0;
     public class MoveInfo
     {
@@ -68,7 +70,7 @@ public class GameManager : MonoBehaviour
 
     public void GenerateColumn()
     {
-        if (countPlate >= maxCountPlate)
+        if (countPlate >= maxCountPlate || countPlate <= 0)
             return;
 
         StopCoroutine(nameof(AutoMove));
@@ -96,8 +98,10 @@ public class GameManager : MonoBehaviour
         }
         list_columns[0].GetComponent<Column>().GeneratePlate();
 
+        button_Generate.interactable = true;
         hasExecuted = false;
         panel_Complete.SetActive(false);
+        text_Optimum.SetActive(false);
     }
     void move(int x, int y)
     {
@@ -110,6 +114,7 @@ public class GameManager : MonoBehaviour
             return;
         if (hasExecuted)
             return;
+        button_Generate.interactable = false;
         hasExecuted = true;
 
         list_moveInfos.Clear();
@@ -167,12 +172,26 @@ public class GameManager : MonoBehaviour
                 
         }
     }
+    public bool CheckInit()
+    {
+        //if(list_columns[0].transform.childCount == countPlate)
+        if(countMove > 0)
+        {
+            button_Generate.interactable = false;
+            return false;
+        }
+        button_Generate.interactable = true;
+        return true;
+
+    }
     public bool CheckComplete()
     {
         if (list_columns[2].transform.childCount == countPlate)
         {
             hasExecuted = true;
             panel_Complete.SetActive(true);
+            if (countMove == Mathf.Pow(2, countPlate) - 1)
+                text_Optimum.SetActive(true);
             return true;
         }
         return false;
@@ -197,9 +216,9 @@ public class GameManager : MonoBehaviour
                 Destroy(p.transform.GetChild(i).gameObject);
     }
 
-    void OnValidate()
-    {
-        if(Application.isPlaying && instance)
-            GenerateColumn();
-    }
+    //void OnValidate()
+    //{
+    //    if(Application.isPlaying && instance)
+    //        GenerateColumn();
+    //}
 }

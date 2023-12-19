@@ -65,6 +65,10 @@ public class Plate : MonoBehaviour,IBeginDragHandler,IDragHandler,IEndDragHandle
                     col.gameObject.GetComponent<Column>().PushPlate(size);
                     Destroy(gameObject);
                     transform.parent.GetComponent<Column>().PopPlate();
+                    GameManager.instance.countMove++;
+                    GameManager.instance.text_countMove.text = GameManager.instance.countMove.ToString();
+                    GameManager.instance.CheckInit();
+                    GameManager.instance.CheckComplete();
                 }
             }
         }
@@ -74,11 +78,11 @@ public class Plate : MonoBehaviour,IBeginDragHandler,IDragHandler,IEndDragHandle
         color.a = 1f;
         GetComponent<Image>().color = new Color(color.r, color.g, color.b, color.a);
 
-        if (!moved)
-            return;
-        GameManager.instance.CheckComplete();
-        GameManager.instance.countMove++;
-        GameManager.instance.text_countMove.text = GameManager.instance.countMove.ToString();
+        //if (!moved)
+        //    return;
+        
+        
+        
     }
 
     static Vector3 TransScreenPosToWorld(Vector3 pos)
