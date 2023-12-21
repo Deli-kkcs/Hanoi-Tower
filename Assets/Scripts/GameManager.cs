@@ -7,10 +7,11 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     
+
+    
     private List<GameObject> list_columns = new();
     public GameObject prefab_column;
     public GameObject panel_column;
-
     [Header("柱子参数")]
     public float intervalColumn = 300f;
     public float heightColumn = 750f;
@@ -55,6 +56,7 @@ public class GameManager : MonoBehaviour
     {
         instance = this;
     }
+    // Update is called once per frame
     void Update()
     {
         //if (Input.GetKeyDown(KeyCode.G))
@@ -62,6 +64,8 @@ public class GameManager : MonoBehaviour
 
         //if (Input.GetKeyDown(KeyCode.R))
         //    CallExecute();
+        
+        
     }
 
     public void GenerateColumn()
@@ -192,10 +196,29 @@ public class GameManager : MonoBehaviour
         }
         return false;
     }
+
+    //void AutoMove()
+    //{
+    //    if(list_moveInfos.Count > 0)
+    //    {
+    //        MoveInfo t_info = list_moveInfos[0];
+    //        //Debug.Log("move " + t_info.source + " -> " + t_info.destination);
+    //        list_columns[t_info.destination].GetComponent<Column>().PushPlate(list_columns[t_info.source].GetComponent<Column>().PopPlate());
+    //        list_moveInfos.Remove(t_info);
+    //        Invoke(nameof(AutoMove), intervalMove);
+    //        return;
+    //    }
+    //}
     public void ClearChild(GameObject p)
     {
         for (int i = 0; i < p.transform.childCount; i++)
             if(p.transform.GetChild(i).gameObject.activeSelf)
                 Destroy(p.transform.GetChild(i).gameObject);
     }
+
+    //void OnValidate()
+    //{
+    //    if(Application.isPlaying && instance)
+    //        GenerateColumn();
+    //}
 }
